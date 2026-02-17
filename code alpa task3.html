@@ -1,0 +1,222 @@
+<!DOCTYPE html>
+<html>
+<head>
+<meta charset="UTF-8">
+<title>Smart AI FAQ Chatbot</title>
+
+<style>
+
+body{
+    margin:0;
+    height:100vh;
+    display:flex;
+    justify-content:center;
+    align-items:center;
+    background: linear-gradient(135deg,#1d2671,#c33764);
+    font-family: 'Segoe UI';
+}
+
+.container{
+    width:420px;
+    height:600px;
+    background:white;
+    border-radius:20px;
+    display:flex;
+    flex-direction:column;
+    box-shadow:0 10px 30px rgba(0,0,0,0.4);
+}
+
+.header{
+    background:#1d2671;
+    color:white;
+    padding:18px;
+    text-align:center;
+    font-size:22px;
+    border-top-left-radius:20px;
+    border-top-right-radius:20px;
+}
+
+.chatbox{
+    flex:1;
+    padding:15px;
+    overflow-y:auto;
+}
+
+.message{
+    padding:12px;
+    margin:8px 0;
+    border-radius:12px;
+    max-width:75%;
+    animation:fadeIn .3s ease;
+}
+
+.user{
+    background:#c33764;
+    color:white;
+    margin-left:auto;
+}
+
+.bot{
+    background:#eee;
+}
+
+.inputArea{
+    display:flex;
+    border-top:1px solid #ddd;
+}
+
+input{
+    flex:1;
+    padding:15px;
+    border:none;
+    font-size:15px;
+}
+
+button{
+    background:#1d2671;
+    color:white;
+    border:none;
+    padding:15px;
+    cursor:pointer;
+}
+
+button:hover{
+    background:#0f1445;
+}
+
+@keyframes fadeIn{
+    from{opacity:0; transform:translateY(10px);}
+    to{opacity:1;}
+}
+
+.typing{
+    font-style:italic;
+    color:gray;
+}
+
+</style>
+</head>
+
+<body>
+
+<div class="container">
+
+<div class="header">
+🤖 Smart AI Chatbot
+</div>
+
+<div class="chatbox" id="chatbox">
+<div class="message bot">
+Hello! Ask me anything about CodeAlpha internship 😊
+</div>
+</div>
+
+<div class="inputArea">
+<input id="input" placeholder="Type your question..."
+onkeypress="if(event.key==='Enter') sendMessage()">
+<button onclick="sendMessage()">Send</button>
+</div>
+
+</div>
+
+<script>
+
+// LARGE FAQ SET (looks professional)
+const faqs = [
+
+{q:"what is codealpha",
+a:"CodeAlpha is an organization that provides internships to help students gain real-world project experience."},
+
+{q:"is the internship free",
+a:"Yes! Most CodeAlpha internships are completely free."},
+
+{q:"will i get certificate",
+a:"You will receive an internship certificate after successfully completing your tasks."},
+
+{q:"how many tasks should i complete",
+a:"You typically need to complete at least 2 to 3 tasks."},
+
+{q:"what is the last date",
+a:"Please check your internship email for the official deadline."},
+
+{q:"do i need linkedin post",
+a:"LinkedIn posting is optional but recommended for visibility."},
+
+{q:"what skills are required",
+a:"Basic programming knowledge and interest in learning are enough."}
+
+];
+
+// Advanced NLP-style cleaning
+function clean(text){
+return text
+.toLowerCase()
+.replace(/[^\w\s]/gi,'')
+.split(" ");
+}
+
+// Cosine-like similarity
+function similarity(a,b){
+
+let matches = a.filter(word => b.includes(word)).length;
+
+return matches / Math.sqrt(a.length * b.length);
+}
+
+function bestMatch(question){
+
+let userWords = clean(question);
+
+let bestScore = 0;
+let bestAnswer = "I'm not sure about that 🤔 Try asking something related to the internship.";
+
+faqs.forEach(faq=>{
+
+let faqWords = clean(faq.q);
+
+let score = similarity(userWords, faqWords);
+
+if(score > bestScore){
+bestScore = score;
+bestAnswer = faq.a + `<br><small>Confidence: ${(score*100).toFixed(0)}%</small>`;
+}
+
+});
+
+return bestAnswer;
+}
+
+function sendMessage(){
+
+let input = document.getElementById("input");
+let chatbox = document.getElementById("chatbox");
+
+let text = input.value.trim();
+
+if(text==="") return;
+
+// user bubble
+chatbox.innerHTML += `<div class="message user">${text}</div>`;
+
+// typing animation
+chatbox.innerHTML += `<div class="message bot typing" id="typing">Typing...</div>`;
+chatbox.scrollTop = chatbox.scrollHeight;
+
+setTimeout(()=>{
+
+document.getElementById("typing").remove();
+
+let reply = bestMatch(text);
+
+chatbox.innerHTML += `<div class="message bot">${reply}</div>`;
+chatbox.scrollTop = chatbox.scrollHeight;
+
+},700);
+
+input.value="";
+}
+
+</script>
+
+</body>
+</html>
